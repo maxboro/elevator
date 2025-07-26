@@ -22,10 +22,13 @@ class State(ABC):
 
 class MovingUp(State):
     def handle_input(self, context, event: Event, data: dict):
+        if not isinstance(event, Tick):
+            return self
+
         context.n_floor += 1
         print(f"MovingUp: floor {context.n_floor}")
         if context.n_floor < context.destination_floor:
-            return MovingUp()
+            return self
         if context.n_floor == context.destination_floor:
             print(f"MovingUp: destination floor {context.n_floor}")
             context.destination_floor = None
@@ -33,10 +36,13 @@ class MovingUp(State):
 
 class MovingDown(State):
     def handle_input(self, context, event: Event, data: dict):
+        if not isinstance(event, Tick):
+            return self
+
         context.n_floor -= 1
         print(f"MovingDown: floor {context.n_floor}")
         if context.n_floor > context.destination_floor:
-            return MovingDown()
+            return self
         if context.n_floor == context.destination_floor:
             print(f"MovingDown: destination floor {context.n_floor}")
             context.destination_floor = None
@@ -44,6 +50,8 @@ class MovingDown(State):
 
 class DoorOpen(State):
     def handle_input(self, context, event: Event, data: dict):
+        if not isinstance(event, Tick):
+            return self
         print("Door opened")
         return Idle()
 
