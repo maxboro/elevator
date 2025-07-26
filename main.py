@@ -26,7 +26,7 @@ class State(ABC):
 
 class Moving(State):
     step = None
-    def handle_input(self, context: "Elevator", event: Event, data: dict):
+    def handle_input(self, context: "Elevator", event: Event, data: dict) -> State:
         if not isinstance(event, Tick):
             return self
 
@@ -49,7 +49,7 @@ class MovingDown(Moving):
 
 
 class DoorOpen(State):
-    def handle_input(self, context: "Elevator", event: Event, data: dict):
+    def handle_input(self, context: "Elevator", event: Event, data: dict) -> State:
         if not isinstance(event, Tick):
             return self
         print("Door opened")
@@ -57,7 +57,7 @@ class DoorOpen(State):
 
 
 class Idle(State):
-    def handle_input(self, context: "Elevator", event: Event, data: dict):
+    def handle_input(self, context: "Elevator", event: Event, data: dict) -> State:
         if isinstance(event, CallRequestOut) or isinstance(event, CallRequestCabin):
             if context.n_floor == context.destination_floor:
                 print("Idle: We need to open the door")
