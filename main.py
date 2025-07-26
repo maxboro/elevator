@@ -5,17 +5,20 @@ class Event(ABC):
     def __repr__(self):
         return self.description
 
+
 class CallRequestOut(Event):
     description = "Call request from external panel."
+
 
 class CallRequestCabin(Event):
     description = "Call request from cabin panel."
 
+
 class Tick(Event):
     description = "Unit of time passes."
 
+
 class State(ABC):
-    
     @abstractmethod
     def handle_input(self, context, event: Event, data: dict):
         pass
@@ -52,6 +55,7 @@ class DoorOpen(State):
         print("Door opened")
         return Idle()
 
+
 class Idle(State):
     def handle_input(self, context, event: Event, data: dict):
         if isinstance(event, CallRequestOut) or isinstance(event, CallRequestCabin):
@@ -70,7 +74,7 @@ class Idle(State):
         elif isinstance(event, Tick):
             print("Idle: Waiting for commands")
             return Idle()
-            
+        
 
 class Elevator:
     """Context class."""
