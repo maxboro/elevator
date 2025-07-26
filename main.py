@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import time
 
 class Event(ABC):
     pass
@@ -10,6 +9,9 @@ class CallRequestOut(Event):
 class CallRequestCabin(Event):
     pass
 
+class Tick(Event):
+    """Unit of time passes."""
+
 class State(ABC):
     
     @abstractmethod
@@ -18,22 +20,25 @@ class State(ABC):
 
 class MovingUp(State):
     def handle_input(self, contex, event: Event, data: dict):
-        while contex.n_floor < contex.destination_floor:
-            contex.n_floor += 1
-            print(f"MovingUp: floor {contex.n_floor}")
-
-            if contex.n_floor == contex.destination_floor:
-                contex.destination_floor = None
-                return DoorOpen()
+        contex.n_floor += 1
+        print(f"MovingUp: floor {contex.n_floor}")
+        if contex.n_floor < contex.destination_floor:
+            return MovingUp()
+        if contex.n_floor == contex.destination_floor:
+            print(f"MovingUp: destination floor {contex.n_floor}")
+            contex.destination_floor = None
+            return DoorOpen()
 
 class MovingDown(State):
     def handle_input(self, contex, event: Event, data: dict):
-        while contex.n_floor > contex.destination_floor:
-            contex.n_floor -= 1
-            print(f"MovingDown: floor {contex.n_floor}")
-            if contex.n_floor == contex.destination_floor:
-                contex.destination_floor = None
-                return DoorOpen()
+        contex.n_floor -= 1
+        print(f"MovingDown: floor {contex.n_floor}")
+        if contex.n_floor > contex.destination_floor:
+            return MovingDown()
+        if contex.n_floor == contex.destination_floor:
+            print(f"MovingDown: destination floor {contex.n_floor}")
+            contex.destination_floor = None
+            return DoorOpen()
 
 class DoorOpen(State):
     def handle_input(self, contex, event: Event, data: dict):
@@ -55,6 +60,9 @@ class Idle(State):
                 elif contex.n_floor > contex.destination_floor:
                     print("Idle: We need to move down")
                     return MovingDown()
+        elif isinstance(event, Tick):
+            print("Idle: Waiting for commands")
+            return Idle()
             
 
 class Elevator:
@@ -68,11 +76,19 @@ class Elevator:
         new_state = self.state.handle_input(self, event, data)
         if new_state != self.state:
             self.state = new_state
+    
+    def run_until_idle(self):
+        while type(self.state) != Idle:
+            self.update(Tick())
 
 def main():
     elevator = Elevator(Idle(), 1)
+    elevator.update(Tick())
+    elevator.update(Tick())
     elevator.update(CallRequestOut(), destination_floor=7)
+    elevator.run_until_idle()
     elevator.update(CallRequestCabin(), destination_floor=1)
+    elevator.run_until_idle()
 
 if __name__ == "__main__":
     main()
