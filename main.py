@@ -1,16 +1,18 @@
 from abc import ABC, abstractmethod
 
 class Event(ABC):
-    pass
+    description = ""
+    def __repr__(self):
+        return self.description
 
 class CallRequestOut(Event):
-    pass
+    description = "Call request from external panel."
 
 class CallRequestCabin(Event):
-    pass
+    description = "Call request from cabin panel."
 
 class Tick(Event):
-    """Unit of time passes."""
+    description = "Unit of time passes."
 
 class State(ABC):
     
@@ -73,6 +75,8 @@ class Elevator:
         self.destination_floor = None
 
     def update(self, event: Event, **data):
+        if event:
+            print(f"Event detected: {event}")
         new_state = self.state.handle_input(self, event, data)
         if new_state != self.state:
             self.state = new_state
