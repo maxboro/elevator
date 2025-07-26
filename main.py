@@ -34,7 +34,7 @@ class Moving(State):
         print(f"{self.__class__.__name__}: floor {context.n_floor}")
         if context.n_floor != context.destination_floor:
             return self
-        if context.n_floor == context.destination_floor:
+        else:
             print(f"{self.__class__.__name__}: destination floor {context.n_floor}")
             context.destination_floor = None
             return DoorOpen()
