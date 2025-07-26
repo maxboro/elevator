@@ -73,7 +73,10 @@ class Idle(State):
                     return MovingDown()
         elif isinstance(event, Tick):
             print("Idle: Waiting for commands")
-            return Idle()
+            return self
+        else:
+            print("Idle: else") # shouldn't be
+            return self
         
 
 class Elevator:
