@@ -17,49 +17,49 @@ class Tick(Event):
 class State(ABC):
     
     @abstractmethod
-    def handle_input(self, contex, event: Event, data: dict):
+    def handle_input(self, context, event: Event, data: dict):
         pass
 
 class MovingUp(State):
-    def handle_input(self, contex, event: Event, data: dict):
-        contex.n_floor += 1
-        print(f"MovingUp: floor {contex.n_floor}")
-        if contex.n_floor < contex.destination_floor:
+    def handle_input(self, context, event: Event, data: dict):
+        context.n_floor += 1
+        print(f"MovingUp: floor {context.n_floor}")
+        if context.n_floor < context.destination_floor:
             return MovingUp()
-        if contex.n_floor == contex.destination_floor:
-            print(f"MovingUp: destination floor {contex.n_floor}")
-            contex.destination_floor = None
+        if context.n_floor == context.destination_floor:
+            print(f"MovingUp: destination floor {context.n_floor}")
+            context.destination_floor = None
             return DoorOpen()
 
 class MovingDown(State):
-    def handle_input(self, contex, event: Event, data: dict):
-        contex.n_floor -= 1
-        print(f"MovingDown: floor {contex.n_floor}")
-        if contex.n_floor > contex.destination_floor:
+    def handle_input(self, context, event: Event, data: dict):
+        context.n_floor -= 1
+        print(f"MovingDown: floor {context.n_floor}")
+        if context.n_floor > context.destination_floor:
             return MovingDown()
-        if contex.n_floor == contex.destination_floor:
-            print(f"MovingDown: destination floor {contex.n_floor}")
-            contex.destination_floor = None
+        if context.n_floor == context.destination_floor:
+            print(f"MovingDown: destination floor {context.n_floor}")
+            context.destination_floor = None
             return DoorOpen()
 
 class DoorOpen(State):
-    def handle_input(self, contex, event: Event, data: dict):
+    def handle_input(self, context, event: Event, data: dict):
         print("Door opened")
         return Idle()
 
 class Idle(State):
-    def handle_input(self, contex, event: Event, data: dict):
+    def handle_input(self, context, event: Event, data: dict):
         if isinstance(event, CallRequestOut) or isinstance(event, CallRequestCabin):
-            if contex.n_floor == contex.destination_floor:
+            if context.n_floor == context.destination_floor:
                 print("Idle: We need to open the door")
                 return DoorOpen()
             else:
-                if contex.destination_floor is None:
-                    contex.destination_floor = data.get("destination_floor")
-                if contex.n_floor < contex.destination_floor:
+                if context.destination_floor is None:
+                    context.destination_floor = data.get("destination_floor")
+                if context.n_floor < context.destination_floor:
                     print("Idle: We need to move up")
                     return MovingUp()
-                elif contex.n_floor > contex.destination_floor:
+                elif context.n_floor > context.destination_floor:
                     print("Idle: We need to move down")
                     return MovingDown()
         elif isinstance(event, Tick):
